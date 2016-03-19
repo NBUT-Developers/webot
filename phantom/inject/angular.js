@@ -9,33 +9,41 @@
 (function() {
 ////////////////////////////////////////////////////////////////////////////////
 
-var _proxy = window._proxy;
+var proxy = window._proxy;
 var angular = window.angular = {};
 var trueAngularBootstrap;
+var onMessage = window.onMessage;
+var inject$ = window.inject$;
+
+// pre-create a bootstrap angular object
 Object.defineProperty(angular, "bootstrap", {
     get: function() {
         return trueAngularBootstrap ? function(element, moduleNames) {
             var moduleName = "webwxApp";
             if(moduleNames.indexOf(moduleName) >= 0) {
+                proxy.emit("debug", angular);
+
                 var constants;
                 angular.injector([ "ng", "Services" ]).invoke([
                     "confFactory",
                     function(confFactory) {
-                        constants = confFactory;
+                        window.constants = constants = confFactory;
                     }]);
 
+                // inject angular $httpProvider
                 angular.module(moduleName).config([
                     "$httpProvider",
                     function($httpProvider) {
                         $httpProvider.defaults.transformResponse.push(function(value) {
-                            if(typeof value === "object" && value !== null && value.AddMsgList instanceof Array) {
-                                _proxy.emit("debug", value);
-                            }
-
+                            // proxy.emit("debug", ">>>>> " + JSON.stringify(arguments[1]()));
+                            onMessage(value);
                             return value;
                         });
                     }
                 ]);
+
+                // inject jquery
+                inject$(window.$);
             }
 
             return trueAngularBootstrap.apply(angular, arguments);
@@ -46,7 +54,7 @@ Object.defineProperty(angular, "bootstrap", {
     }
 });
 
-_proxy.emit("debug", "injected");
+proxy.emit("debug", "angular object injected");
 
 ////////////////////////////////////////////////////////////////////////////////
 })();
