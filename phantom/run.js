@@ -26,21 +26,36 @@ page.onInitialized = function() {
     }, opts.port);
 
     console.log("page initialized");
+
     page.libraryPath = opts.iopath;
-    console.log("inject socket.io.js: " + page.injectJs("socket.io.js"));
+    console.log(
+        "inject socket.io.js: " +
+        page.injectJs("socket.io.js"));
+
     page.libraryPath = opts.rootpath;
-    console.log("inject custom listener code: " + page.injectJs("phantom/inject/io.js"));
-    console.log("inject custom angular code: " + page.injectJs("phantom/inject/angular.js"));
+    console.log(
+        "inject custom listener code: " +
+        page.injectJs("phantom/inject/io.js"));
+    console.log(
+        "inject custom message processor code: " +
+        page.injectJs("phantom/inject/message_processor.js"));
+    console.log(
+        "inject custom jquery code: " +
+        page.injectJs("phantom/inject/jquery.js"));
+    console.log(
+        "inject custom angular code: " +
+        page.injectJs("phantom/inject/angular.js"));
 };
 
 // page.onResourceReceived = function(responseData) {
-//     console.log("received: " + responseData.url);
+//     if(responseData.url.indexOf("jslogin") >= 0)
+//         console.log("<<<<<", JSON.stringify(responseData));
 // };
 
 page.onResourceRequested = function(requestData) {
     if(urlUtil.isLoginQRCodeUrl(requestData.url)) {
-        page._emit("login_qrcode", requestData.url);
+        return page._emit("login_qrcode", requestData.url);
     }
 };
 
-page.open(homepage, function() {});
+page.open(homepage);
