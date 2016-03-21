@@ -15,4 +15,14 @@ webot.on("login_qrcode", function(url) {
     debug("login qrcode: %s", url);
 });
 
+webot.on("logged_in", function(result) {
+    debug("logged in with %j", result);
+});
+
+webot.on("load_contact_list", function(list) {
+    debug("contact list: %j", list.map(function(item) {
+        return item["NickName"];
+    }));
+});
+
 webot.start();
